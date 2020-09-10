@@ -10,8 +10,8 @@
 
 numsim=1
 for(samp.size in c("s","m","l")) {
-for(class.size in c("equal","Sunequal","unequal")) {
-  for(class.sep in c("low","medium","high")){
+  for(class.size in c("med","med-eq","equal")) {
+    for(class.sep in c("low","medium","high")){
     for(n in 1:numsim){
       
       data.cond <- paste(paste("sim-data",

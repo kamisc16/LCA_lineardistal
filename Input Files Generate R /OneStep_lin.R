@@ -37,6 +37,7 @@ for(class.size in c("equal","Sunequal","unequal")) {
         paste("MISSING ARE .;"),
         paste("USEVARIABLES= u1-u4 y1-y4;"),
         paste("CATEGORICAL = u1-u4;"),
+        paste("AUXILIARY = class;"),
         paste("CLASSES = c (2);"),
         
         

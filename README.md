@@ -15,3 +15,6 @@ Runs R files to generate mplus files (for simulating data and method input files
 
 ## Results_Analyze_lin.R
 Collects information from all runs in order to compare average coef. across methods and conditions; also collects information absolute bias and RMSE
+
+## Testing Classes 
+Includes R script for generating Mplus input files for 1 and 3 class specifications to test whether the One-Class method differs from the first step of any Multi-step method in recovering the correct number of classes. This folder also includes a R script that gathers the results for comparing across methods and conditions. 

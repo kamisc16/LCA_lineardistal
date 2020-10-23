@@ -4,11 +4,16 @@
 #Current file assumes equal growth parameter 
 #variances/covariances/residual are held equal across classes 
 #WILL NEED TO ADD ADDITIONAL LINES IF CHANGING THIS ^ 
+
+
+#Simulated Data stored on personal computer, however input files are stored in Duke Box
+
+
 #Christina Kamis
 #9/10/2020
 ####################################
 
-numsim=1
+numsim=5
 for(samp.size in c("s","m","l")) {
   for(class.size in c("med","med-eq","equal")) {
     for(class.sep in c("low","medium","high")){
@@ -19,12 +24,12 @@ for(samp.size in c("s","m","l")) {
                                  class.size,
                                  class.sep,
                                  sep="-"),n,sep="")     
-        fileA=paste("'/Users/christinakamis/Documents/DukeSociology/Dissertation/")
-        fileB=paste("SimulationStudy/LCA_Linear_growth/Simulated Data/",data.cond,paste(".dat"),paste("'"),paste(";"), sep="")
+        fileA=paste("'~/Box/Dissertation/Simulation Study/")
+        fileB=paste("Simulated Data/",data.cond,paste(".dat"),paste("'"),paste(";"), sep="")
         outputA=paste("multistep_step1",data.cond,paste(".txt"),paste(";"), sep="")
         
         
-        inputfile=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/MultiStep_Step1/","inp-",data.cond,paste(".inp"), sep="")
+        inputfile=paste("~/Box/Dissertation/Simulation Study/Input Files/MultiStep_Step1/","inp-",data.cond,paste(".inp"), sep="")
         
       
         input=file(inputfile) 

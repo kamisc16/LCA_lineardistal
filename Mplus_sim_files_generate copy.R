@@ -6,7 +6,7 @@
 #9/4/2020
 ####################################
 
-
+nrep=5
 for(samp.size in c("s","m","l")) {
 for(class.size in c("med","med-eq","equal")) {
   for(class.sep in c("low","medium","high")){
@@ -19,7 +19,7 @@ for(class.size in c("med","med-eq","equal")) {
       
       ####################################
       
-      inputfile=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Simulated Data/",data.cond,paste(".inp"), sep="")
+      inputfile=paste("~/Box/Dissertation/Simulation Study/Simulated Data/",data.cond,paste(".inp"), sep="")
       
       
       input=file(inputfile) 
@@ -52,7 +52,7 @@ for(class.size in c("med","med-eq","equal")) {
         write(samp, file=inputfile, append=T)
     
         m=c(
-        paste("Nrep= 1000;"),
+        paste("Nrep= ", nrep,";",sep=""),
         paste("repsave= All;"),
         paste("save= ",data.cond,"*.dat;",sep=""),
         
@@ -96,7 +96,7 @@ for(class.size in c("med","med-eq","equal")) {
         paste("[u3$1*",-0.75,"];", sep=""),
         paste("[u4$1*",-0.75,"];", sep=""),
         paste("i with s*.5; [i*3];[s*-.25];"),
-        paste("i*2; s*0.5; y1-y4*1;"),
+        paste("i*2; s*0.4; y1-y4*1;"),
 
           
         paste("%c#2%"),
@@ -105,7 +105,7 @@ for(class.size in c("med","med-eq","equal")) {
           paste("[u3$1*",0.75,"];", sep=""),
           paste("[u4$1*",0.75,"];", sep=""),
         paste("i with s*.5; [i*6];[s*1];"),
-        paste("i*2; s*0.5; y1-y4*1;")
+        paste("i*2; s*0.4; y1-y4*1;")
 
         )
         }
@@ -118,7 +118,7 @@ for(class.size in c("med","med-eq","equal")) {
           paste("[u3$1*",-1.250,"];", sep=""),
           paste("[u4$1*",-1.250,"];", sep=""),
           paste("i with s*.5; [i*3];[s*-.25];"),
-          paste("i*2; s*0.5; y1-y4*1;"),
+          paste("i*2; s*0.4; y1-y4*1;"),
           
           
           paste("%c#2%"),
@@ -127,7 +127,7 @@ for(class.size in c("med","med-eq","equal")) {
           paste("[u3$1*",1.250,"];", sep=""),
           paste("[u4$1*",1.250,"];", sep=""),
           paste("i with s*.5; [i*6];[s*1];"),
-          paste("i*2; s*0.5; y1-y4*1;")
+          paste("i*2; s*0.4; y1-y4*1;")
           )
         }
         
@@ -139,7 +139,7 @@ for(class.size in c("med","med-eq","equal")) {
           paste("[u3$1*",-1.750,"];", sep=""),
           paste("[u4$1*",-1.750,"];", sep=""),
           paste("i with s*.5; [i*3];[s*-.25];"),
-          paste("i*2; s*0.5; y1-y4*1;"),
+          paste("i*2; s*0.4; y1-y4*1;"),
           
           
           paste("%c#2%"),
@@ -148,7 +148,7 @@ for(class.size in c("med","med-eq","equal")) {
           paste("[u3$1*",1.750,"];", sep=""),
           paste("[u4$1*",1.750,"];", sep=""),
           paste("i with s*.5; [i*6];[s*1];"),
-          paste("i*2; s*0.5; y1-y4*1;")
+          paste("i*2; s*0.4; y1-y4*1;")
           )
         }
         

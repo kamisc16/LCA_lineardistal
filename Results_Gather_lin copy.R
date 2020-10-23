@@ -18,7 +18,7 @@ require(MplusAutomation)
 #first going to run R code to create mplus 
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Mplus_sim_files_generate.R")
 #then running mplus files to create the simualted data sets 
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Simulated Data/", 
+runModels("~/Box/Dissertation/Simulation Study/Simulated Data/", 
           recursive=T, logFile=NULL)
 
 ####################################
@@ -31,33 +31,33 @@ runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/Simulation
 
 #One Step
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/OneStep_lin.R")
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/OneStep/", 
+runModels("~/Box/Dissertation/Simulation Study/Input Files/OneStep/", 
           recursive=T, logFile=NULL)
 
 #need to run multistep step1 before any other files below 
 #MultiStep (Step 1) #first step for all multiple step methods (ML, BCH, classify-analyze, two-step)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/MultiStep1_lin.R")
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/MultiStep_Step1/", 
+runModels("~/Box/Dissertation/Simulation Study/Input Files/MultiStep_Step1/", 
           recursive=T, logFile=NULL)
 
 #Three-step/classify analyze (Step 3)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/ThreeStep3_lin.R")
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/ThreeStep_Step3/", 
+runModels("~/Box/Dissertation/Simulation Study/Input Files/ThreeStep_Step3/", 
           recursive=T, logFile=NULL)
 
 #ML manual (Step 3)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/MLStep3_lin.R")
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/ML_Step3/", 
+runModels("~/Box/Dissertation/Simulation Study/Input Files/ML_Step3/", 
           recursive=T, logFile=NULL)
 
 #BCH manual (Step 3)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/BCHStep3_lin.R")
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/BCH_Step3/", 
+runModels("~/Box/Dissertation/Simulation Study/Input Files/BCH_Step3/", 
           recursive=T, logFile=NULL)
 
 #Two Step (Step 2)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/TwoStep2_lin.R")
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/TwoStep_Step2/", 
+runModels("~/Box/Dissertation/Simulation Study/Input Files/TwoStep_Step2/", 
           recursive=T, logFile=NULL)
 
 ####################################################################################
@@ -72,23 +72,13 @@ runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/Simulation
 #data frame "Parameters" to global environment
 
 GatherParam<-function(method, data.cond,n){
-  Output<-paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/",method,"/inp-",data.cond,n,paste(".out"), sep="")
+  Output=paste("~/Box/Dissertation/Simulation Study/Input Files/",method,"/inp-",data.cond,n,paste(".out"), sep="")
   
   #This is reading in the results
-  Results<-readModels(Output)
+  Results=readModels(Output)
   #Pulling out the parameters (unstandardized)
-  Parameters<-Results$parameters$unstandardized
-  #Pulling out any warnings 
-  Warnings<-Results$warnings
-  #outputting to global environ. 
+  Parameters=Results$parameters$unstandardized
   assign("Parameters", Parameters, envir=globalenv())
-  numwarn=0
-  if(length(Warnings)>0){
-  #assign("Warnings", Warnings, envir=globalenv())
-    numwarn=numwarn+1
-   
-  }
-  print(numwarn)
 }
 
 
@@ -122,7 +112,7 @@ OutputResults<-function(means,method, type){
 
 ####################################################################################
 #first setting numsim to the number of simulation is specified. 
-numsim=50
+numsim=5
 ####################################################################################
 ###
 ####Getting Parameters from each run into a single table by method and data condition 
@@ -167,7 +157,6 @@ Distalmeans[n,13]="1,2"
 if(as.numeric(Parameters[16,3])<0){
   Distalmeans[n,13]="2,1"
 }
-
 
 
 if(n==numsim){
@@ -216,6 +205,7 @@ if(n==numsim){
 }
 
       }}}}  
+
 
 ##################################
 #ML
@@ -268,6 +258,7 @@ for(samp.size in c("s","m","l")) {
       }}}}  
 
 
+
 ##################################
 #BCH
 
@@ -298,7 +289,7 @@ for(samp.size in c("s","m","l")) {
         Distalmeans[n,7]=Parameters[31,3] #Class 2 Intercept
         Distalmeans[n,8]=Parameters[32,3] #Class 2 Slope
         Distalmeans[n,9]=Parameters[37,3] #Class 2 Intercept Var
-        Distalmeans[n,10]=Parameters[28,3] #Class 2 Slope Var
+        Distalmeans[n,10]=Parameters[38,3] #Class 2 Slope Var
         Distalmeans[n,11]=Parameters[39,3] #Class 2 Residual Var
         Distalmeans[n,12]=Parameters[30,3] #Class 2 Intercept Slope Covar
         

@@ -38,7 +38,7 @@ getavg<-function(data.cond,method,switch=F){
   }
   
 
-  Averages=colMeans(Resultsdataframe[,1:12], na.rm=T)
+  Averages=colMeans(Resultsdataframe[,1:(ncol(Resultsdataframe)-1)], na.rm=T)
   Resultsdataframe=rbind(Resultsdataframe,Averages)
   write.table(Resultsdataframe, Filename)
   
@@ -86,6 +86,71 @@ GatherAcrossCond<-function(data.cond){
   
 }
 
+##Fucntion RMSE
+#reads in data files and calculates the RMSE 
+#RMSE is calculated as the sum of (theta hat - theta)^2 over all replications
+#divided by the number of replications. and then sqrt
+
+RMSE<-function( rep, data.cond){
+  
+  Results<-matrix(NA,6,12)
+  Results[1,]<-cbind(3,-.25,2,.5,1,.5,6,1,2,.5,1,.5)
+  Results=data.frame(Results)
+  row.names(Results)<-c("Actual","OneStep","Three Step","ML","BCH","Two Step")
+  names(Results)<-c("C1Intercept","C1Slope","C1IntVar","C1SlopeVar","C1ResVar","C1ISCovar",
+                    "C2Intercept","C2Slope","C2IntVar","C2SlopeVar","C2ResVar","C2ISCovar")
+  
+  
+  
+  for(method in c("OneStep","Three Step","ML","BCH","Two Step")){
+    #reading in temporary data file of results
+    tempfile<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/",method,
+                               "/",data.cond,".txt", sep=""))
+  
+    for(i in 1:12){
+    thetahat<-tempfile[1:rep,i]
+    theta<-Results["Actual",i]
+    num=sum((thetahat-theta)^2)
+    den=rep
+    rmse=sqrt(num/den)
+    Results[method,i]=rmse
+    }
+  }
+  
+
+  Filename=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/",
+                 "rmse",data.cond,".txt", sep="")
+  write.table(Results, Filename)
+  
+}
+
+##Fucntion ABias
+#reads in data files and calculates the Absolute bias 
+#absolute bias is calculated as the 
+
+ABias<-function(data.cond){
+  
+  Results<-matrix(NA,6,12)
+  Results[1,]<-cbind(3,-.25,2,.5,1,.5,6,1,2,.5,1,.5)
+  Results=data.frame(Results)
+  row.names(Results)<-c("Actual","OneStep","Three Step","ML","BCH","Two Step")
+  names(Results)<-c("C1Intercept","C1Slope","C1IntVar","C1SlopeVar","C1ResVar","C1ISCovar",
+                    "C2Intercept","C2Slope","C2IntVar","C2SlopeVar","C2ResVar","C2ISCovar")
+
+  tempfile<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
+                            ,data.cond,".txt", sep=""))
+  
+  for(i in 1:12){
+  Results[2:6,i]<- abs((tempfile[2:6,i]-tempfile[1,i])/tempfile[1,i])
+  }
+  
+  Filename=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/",
+                 "abias",data.cond,".txt", sep="")
+  write.table(Results, Filename)
+  
+}
+
+
 
 ####################################################################################
 ###
@@ -119,7 +184,7 @@ getavg(data.cond, "Two Step",switch=T)
 
 ####################################################################################
 ###
-####Comparing methods 
+####Comparing methods (getting averages and absolute relative bias )
 ###
 
 #if I want to compare average across methods & conditions
@@ -133,17 +198,37 @@ for(samp.size in c("s","m","l")){
                                sep="-"),sep="") 
       
       GatherAcrossCond(data.cond)
+      ABias(data.cond)
   
 }}}
       
+      
+testavg<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
+               ,"sim-data-l-equal-high" ,".txt", sep=""))
+testabias<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
+                            ,"abias","sim-data-l-equal-high" ,".txt", sep=""))
+
 ####################################################################################
 ###
-####testing to see if this worked 
+####Getting RMSE for all methods 
 ###
 
 
-    
-test<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
-               ,data.cond,".txt", sep=""))
+for(samp.size in c("s","m","l")){
+  for(class.size in c("med","med-eq","equal")) {
+    for(class.sep in c("low","medium","high")){
+      
+      data.cond <- paste(paste("sim-data",samp.size,
+                               class.size,
+                               class.sep,
+                               sep="-"),sep="") 
+      
+      RMSE(5,data.cond)
+      
+    }}}
 
+testrmse<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
+                           ,"rmse","sim-data-l-equal-high" ,".txt", sep=""))
+
+####################################################################################
 

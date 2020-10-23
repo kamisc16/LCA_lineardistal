@@ -6,15 +6,9 @@
 #WILL NEED TO ADD ADDITIONAL LINES IF CHANGING THIS ^ 
 #Christina Kamis
 #9/10/2020
-####################################
-#for ML method will need to grab logit prob from step 1 
-require(MplusAutomation)
-
-runModels("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/MultiStep_Step1/", 
-          recursive=T, logFile=NULL)
 
 ####################################
-numsim=1
+numsim=5
 for(samp.size in c("s","m","l")) {
   for(class.size in c("med","med-eq","equal")) {
     for(class.sep in c("low","medium","high")){
@@ -25,19 +19,18 @@ for(samp.size in c("s","m","l")) {
                                  class.size,
                                  class.sep,
                                  sep="-"),n,sep="")     
-        fileA=paste("'/Users/christinakamis/Documents/DukeSociology/Dissertation/")
-        fileB=paste("SimulationStudy/LCA_Linear_growth/Input Files/")
-        fileC=paste("MultiStep_Step1/multistep_step1",data.cond,paste(".txt"),
+        fileA=paste("'~/Box/Dissertation/Simulation Study/Input Files/")
+        fileB=paste("MultiStep_Step1/multistep_step1",data.cond,paste(".txt"),
                     paste("'"),paste(";"), sep="")
 ####################################    
 #pulling logit probabilities 
-        outputfile=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/MultiStep_Step1/","inp-",data.cond,paste(".out"), sep="")
+        outputfile=paste("~/Box/Dissertation/Simulation Study/Input Files/MultiStep_Step1/","inp-",data.cond,paste(".out"), sep="")
         Results=readModels(outputfile)
         logits=Results$class_counts$logitProbs.mostLikely
         
 ####################################       
         
-        inputfile=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input Files/ML_Step3/","inp-",data.cond,paste(".inp"), sep="")
+        inputfile=paste("~/Box/Dissertation/Simulation Study/Input Files/ML_Step3/","inp-",data.cond,paste(".inp"), sep="")
         
         
         input=file(inputfile) 
@@ -46,7 +39,6 @@ for(samp.size in c("s","m","l")) {
           paste("DATA:")  ,
           paste('FILE =',fileA, sep=" "),
           paste(fileB),
-          paste(fileC),
           paste("VARIABLE:"),
           paste("NAMES ARE u1-u4 y1-y4 class bch1 bch2 cp1 cp2 n;"),
           paste("missing are .;"),

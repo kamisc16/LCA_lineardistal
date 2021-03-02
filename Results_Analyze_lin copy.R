@@ -19,7 +19,7 @@
 #switch is made for models that switch (when classes switch positions between runs)
 #averages are computed
 #averages are outputted to file 
-getavg<-function(data.cond,method,switch=F){
+getavg<-function(data.cond,method){
   
   Filename=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/",method,
                  "/",data.cond,".txt", sep="")
@@ -27,18 +27,17 @@ getavg<-function(data.cond,method,switch=F){
   Resultsdataframe=read.table(Filename)
   
   #this flips the classes to the right order if they flipped during runs 
-  if(switch==T){
-  for(i in 1:nrow(Resultsdataframe))
-    if(Resultsdataframe[i,13]=="2,1"){
+  for(i in 1:1000) {
+    if(!is.na(Resultsdataframe[i,13]) & Resultsdataframe[i,13]=="2,1"){
       C1<-Resultsdataframe[i,7:12]
       C2<-Resultsdataframe[i,1:6]
       Resultsdataframe[i,1:6]<-C1
       Resultsdataframe[i,7:12]<-C2
     }
-  }
-  
 
-  Averages=colMeans(Resultsdataframe[,1:(ncol(Resultsdataframe)-1)], na.rm=T)
+  }
+
+  Averages=colMeans(Resultsdataframe[1:1000,1:(ncol(Resultsdataframe)-1)], na.rm=T)
   Resultsdataframe=rbind(Resultsdataframe,Averages)
   write.table(Resultsdataframe, Filename)
   
@@ -54,7 +53,7 @@ readavg<-function(method,data.cond){
                  "/",data.cond,".txt", sep="")
   
   Resultsdataframe=read.table(Filename)
-  paste(Resultsdataframe[nrow(Resultsdataframe),])
+  paste(Resultsdataframe[1001,])
 }
 
 ##Function GatherAcrossCond
@@ -86,12 +85,12 @@ GatherAcrossCond<-function(data.cond){
   
 }
 
-##Fucntion RMSE
+##Function RMSE
 #reads in data files and calculates the RMSE 
 #RMSE is calculated as the sum of (theta hat - theta)^2 over all replications
 #divided by the number of replications. and then sqrt
 
-RMSE<-function( rep, data.cond){
+RMSE<-function(  data.cond){
   
   Results<-matrix(NA,6,12)
   Results[1,]<-cbind(3,-.25,2,.5,1,.5,6,1,2,.5,1,.5)
@@ -107,11 +106,16 @@ RMSE<-function( rep, data.cond){
     tempfile<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/",method,
                                "/",data.cond,".txt", sep=""))
   
+    length<-nrow(tempfile)
+    if (nrow(tempfile)>1000){
+    length<-1000
+    }
+    
     for(i in 1:12){
-    thetahat<-tempfile[1:rep,i]
+    thetahat<-tempfile[1:length,i]
     theta<-Results["Actual",i]
-    num=sum((thetahat-theta)^2)
-    den=rep
+    num=sum((thetahat-theta)^2, na.rm=T)
+    den=length
     rmse=sqrt(num/den)
     Results[method,i]=rmse
     }
@@ -124,7 +128,7 @@ RMSE<-function( rep, data.cond){
   
 }
 
-##Fucntion ABias
+##Function ABias
 #reads in data files and calculates the Absolute bias 
 #absolute bias is calculated as the 
 
@@ -150,6 +154,31 @@ ABias<-function(data.cond){
   
 }
 
+##Function avgacross_param
+#Grab average Abias, RMSE across all parameters
+avgacross_param<-function(statistic, data.cond){
+
+  stat<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
+                              ,statistic,data.cond ,".txt", sep=""))
+  
+
+  #class 1 
+  stat1<-stat[2:6,1:6]
+  #class 2 
+  stat2<-stat[2:6,7:12]
+  
+  averagestat1<-t(rowMeans(stat1))
+  averagestat2<-t(rowMeans(stat2))
+  
+  #colnames(averagestat2)<-c("C2-OneStep"  ,  "C2-Three Step" ,"C2-ML"   ,      "C2-BCH"   ,     "C2-Two Step"  )
+  
+  
+  averagestat<-cbind(averagestat1, averagestat2)
+  print(averagestat)
+  
+}
+
+
 
 
 ####################################################################################
@@ -169,15 +198,15 @@ for(samp.size in c("s","m","l")) {
 
 
 #one step
-getavg(data.cond,"OneStep",switch=T)
+getavg(data.cond,"OneStep")
 #three step
-getavg(data.cond,"Three Step",switch=F)
+getavg(data.cond,"Three Step")
 #ML
-getavg(data.cond,"ML",switch=T)
+getavg(data.cond,"ML")
 #BCH
-getavg(data.cond, "BCH",switch=T)
+getavg(data.cond, "BCH")
 #Two Step
-getavg(data.cond, "Two Step",switch=T)        
+getavg(data.cond, "Two Step")        
 
 }}}
 
@@ -203,10 +232,7 @@ for(samp.size in c("s","m","l")){
 }}}
       
       
-testavg<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
-               ,"sim-data-l-equal-high" ,".txt", sep=""))
-testabias<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
-                            ,"abias","sim-data-l-equal-high" ,".txt", sep=""))
+
 
 ####################################################################################
 ###
@@ -223,12 +249,96 @@ for(samp.size in c("s","m","l")){
                                class.sep,
                                sep="-"),sep="") 
       
-      RMSE(5,data.cond)
+      RMSE(data.cond)
       
     }}}
 
-testrmse<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
-                           ,"rmse","sim-data-l-equal-high" ,".txt", sep=""))
+
 
 ####################################################################################
+###
+####Getting empirical SE for all methods 
+###
 
+
+
+####################################################################################
+###
+####Compiling average,RMSE, and absolute bias into single table 
+#Note: will add empirical SE when I've gathered it 
+###
+
+sum_results<-matrix(NA,27,3+5*4)
+sum_results[,1]<-c(rep("s",9), rep("m",9), rep("l",9))
+sum_results[,2]<-rep(c(rep("med",3),rep("med-eq",3),rep("equal",3)),3)
+sum_results[,3]<-rep(c("low","medium","high"),9)
+
+#for abias and rmse
+for(i in 1:nrow(sum_results)){
+  data.cond<-paste("sim-data-",sum_results[i,1],"-",sum_results[i,2],"-",
+                   sum_results[i,3],sep="")
+  sum_results[i,4:13]<-avgacross_param("abias",data.cond)
+  sum_results[i,14:23]<-avgacross_param("rmse",data.cond)
+}
+
+
+
+sum_results<-as.data.frame(sum_results)
+
+names(sum_results)<-c("Sample Size","Class Size","Class Sep.",
+                      "C1-ABias-OneStep", "C1-ABias-ThreeStep", "C1-ABias-ML",
+                      "C1-ABias-BCH", "C1-ABias-TwoStep",
+                      "C2-ABias-OneStep", "C2-ABias-ThreeStep", "C2-ABias-ML",
+                      "C2-ABias-BCH", "C2-ABias-TwoStep",
+                      "C1-RMSE-OneStep", "C1-RMSE-ThreeStep", "C1-RMSE-ML",
+                      "C1-RMSE-BCH", "C1-RMSE-TwoStep",
+                      "C2-RMSE-OneStep", "C2-RMSE-ThreeStep", "C2-RMSE-ML",
+                      "C2-RMSE-BCH", "C2-RMSE-TwoStep")
+
+write.csv(sum_results,"~/Desktop/sumresults.csv")
+
+####################################################################################
+###
+#gathering average parameter values across all conditions 
+
+avg_one<-matrix(NA,27,12)
+avg_three<-matrix(NA,27,12)
+avg_ML<-matrix(NA,27,12)
+avg_BCH<-matrix(NA,27,12)
+avg_two<-matrix(NA,27,12)
+datacond<-matrix(NA,27,1)
+
+
+for(i in 1:nrow(sum_results)){
+  data.cond<-paste("sim-data-",sum_results[i,1],"-",sum_results[i,2],"-",
+                   sum_results[i,3],sep="")     
+      
+      stat<-read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Overall/"
+                             ,data.cond ,".txt", sep=""))
+      
+      avg_one[i,]<-as.numeric(stat[2,1:12])
+      avg_three[i,]<-as.numeric(stat[3,1:12])
+      avg_ML[i,]<-as.numeric(stat[4,1:12])
+      avg_BCH[i,]<-as.numeric(stat[5,1:12])
+      avg_two[i,]<-as.numeric(stat[6,1:12] )
+}     
+
+
+Overall<-matrix(NA,6,12)
+
+Overall[1,]=cbind(3,-.25,2,.5,1,.5,6,1,2,.5,1,.5)
+Overall[2,]=colMeans(avg_one)
+Overall[3,]=colMeans(avg_three)
+Overall[4,]=colMeans(avg_ML)
+Overall[5,]=colMeans(avg_BCH)
+Overall[6,]=colMeans(avg_two)
+
+
+Overall=data.frame(Overall)
+
+names(Overall)<-c("C1Intercept","C1Slope","C1IntVar","C1SlopeVar","C1ResVar","C1ISCovar",
+                  "C2Intercept","C2Slope","C2IntVar","C2SlopeVar","C2ResVar","C2ISCovar")
+row.names(Overall)<-c("Actual","One Step","Three Step","ML","BCH","Two-Step")
+
+write.csv(Overall, "~/Desktop/overall.csv")  
+      

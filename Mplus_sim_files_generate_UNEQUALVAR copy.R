@@ -1,24 +1,17 @@
 ####################################
 #This file generates 27 mplus input files for simulating data for the 27 conditions 
 #See Study_Design_LCA_lin.xlsx for study conditions explained
-#note that growth parameter variances/covariances/residual are held equal across classes 
+#note that growth parameter variances/covariances/residual are UNEQUAL across classes
 #Christina Kamis
-#9/4/2020
-####################################
 #3/1/21
-# Note that this file produces data with equal variances across classes
-# Will need to create another file that produces data w unequal variances across classes. 
-
-
-
 ####################################
 
 nrep=1000
 for(samp.size in c("s","m","l")) {
-for(class.size in c("med","med-eq","equal")) {
-  for(class.sep in c("low","medium","high")){
+  for(class.size in c("med","med-eq","equal")) {
+    for(class.sep in c("low","medium","high")){
       
-      data.cond <- paste(paste("sim-data",
+      data.cond <- paste(paste("UNEQUAL-sim-data",
                                samp.size,
                                class.size,
                                class.sep,
@@ -26,7 +19,7 @@ for(class.size in c("med","med-eq","equal")) {
       
       ####################################
       
-      inputfile=paste("/Volumes/Extreme SSD/Simulation Study/Simulated Data/",data.cond,paste(".inp"), sep="")
+      inputfile=paste("/Volumes/Extreme SSD/Simulation Study/Simulated Data Unequal Var/",data.cond,paste(".inp"), sep="")
       
       
       input=file(inputfile) 
@@ -38,27 +31,27 @@ for(class.size in c("med","med-eq","equal")) {
         paste("Categorical = u1-u4;"),
         paste("Genclasses = c(2);"),
         paste("Class= c(2);")
-
+        
       ), input)
       close(input)
       
-        if (samp.size=="s"){
+      if (samp.size=="s"){
         samp=paste("Nobservations =", 1000,  ";")
-        }
+      }
+      
+      if (samp.size=="m"){
+        samp=paste("Nobservations =", 2000,  ";")
         
-        if (samp.size=="m"){
-         samp=paste("Nobservations =", 2000,  ";")
-         
-        }
+      }
+      
+      if (samp.size=="l"){
         
-        if (samp.size=="l"){
-       
-          samp=paste("Nobservations =", 5000,   ";")
-         
-        }
-        write(samp, file=inputfile, append=T)
-    
-        m=c(
+        samp=paste("Nobservations =", 5000,   ";")
+        
+      }
+      write(samp, file=inputfile, append=T)
+      
+      m=c(
         paste("Nrep= ", nrep,";",sep=""),
         paste("repsave= All;"),
         paste("save= ",data.cond,"*.dat;",sep=""),
@@ -70,62 +63,62 @@ for(class.size in c("med","med-eq","equal")) {
         paste("%OVERALL%"),
         paste("i s | y1@0 y2@1 y3@2 y4@3;"),
         paste("y1-y4*1 (1);")
-        )
-        
-        write(m, file=inputfile, append=T)
-     
-        if (class.size=="med"){
-          
-          class=paste("[c#1@",1.734601,"];",sep="" )
-         
-        }
-        
-        if (class.size=="med-eq"){
-         
-          class=paste("[c#1@",0.8472979,"];",sep="" )
-         
-        }
+      )
       
+      write(m, file=inputfile, append=T)
+      
+      if (class.size=="med"){
         
-        if (class.size=="equal"){
-         
-          class=paste("[c#1@",0,"];",sep="" )
-          
-        }
+        class=paste("[c#1@",1.734601,"];",sep="" )
         
-        write(class, file=inputfile, append=T)
+      }
+      
+      if (class.size=="med-eq"){
         
-        if (class.sep=="low"){
+        class=paste("[c#1@",0.8472979,"];",sep="" )
+        
+      }
+      
+      
+      if (class.size=="equal"){
+        
+        class=paste("[c#1@",0,"];",sep="" )
+        
+      }
+      
+      write(class, file=inputfile, append=T)
+      
+      if (class.sep=="low"){
         sep=c(
-        paste("%c#1%"),
-        paste("[u1$1*",0.75,"];", sep=""),
-        paste("[u2$1*",0.75,"];", sep=""),
-        paste("[u3$1*",-0.75,"];", sep=""),
-        paste("[u4$1*",-0.75,"];", sep=""),
-        paste("i with s*.5; [i*3];[s*-.25];"),
-        paste("i*2; s*0.4; y1-y4*1;"),
-
+          paste("%c#1%"),
+          paste("[u1$1*",0.75,"];", sep=""),
+          paste("[u2$1*",0.75,"];", sep=""),
+          paste("[u3$1*",-0.75,"];", sep=""),
+          paste("[u4$1*",-0.75,"];", sep=""),
+          paste("i with s*.3; [i*3];[s*-.25];"),
+          paste("i*1.0; s*0.2; y1-y4*.7;"),
           
-        paste("%c#2%"),
+          
+          paste("%c#2%"),
           paste("[u1$1*",-0.75,"];", sep=""),
           paste("[u2$1*",-0.75,"];", sep=""),
           paste("[u3$1*",0.75,"];", sep=""),
           paste("[u4$1*",0.75,"];", sep=""),
-        paste("i with s*.5; [i*6];[s*1];"),
-        paste("i*2; s*0.4; y1-y4*1;")
-
+          paste("i with s*.5; [i*6];[s*1];"),
+          paste("i*2; s*0.4; y1-y4*1;")
+          
         )
-        }
-
-        if (class.sep=="medium"){
-          sep=c( 
+      }
+      
+      if (class.sep=="medium"){
+        sep=c( 
           paste("%c#1%"),
           paste("[u1$1*",1.250,"];", sep=""),
           paste("[u2$1*",1.250,"];", sep=""),
           paste("[u3$1*",-1.250,"];", sep=""),
           paste("[u4$1*",-1.250,"];", sep=""),
-          paste("i with s*.5; [i*3];[s*-.25];"),
-          paste("i*2; s*0.4; y1-y4*1;"),
+          paste("i with s*.3; [i*3];[s*-.25];"),
+          paste("i*1.0; s*0.2; y1-y4*.7;"),
           
           
           paste("%c#2%"),
@@ -135,18 +128,18 @@ for(class.size in c("med","med-eq","equal")) {
           paste("[u4$1*",1.250,"];", sep=""),
           paste("i with s*.5; [i*6];[s*1];"),
           paste("i*2; s*0.4; y1-y4*1;")
-          )
-        }
-        
-        if (class.sep=="high"){
-          sep=c(
+        )
+      }
+      
+      if (class.sep=="high"){
+        sep=c(
           paste("%c#1%"),
           paste("[u1$1*",1.750,"];", sep=""),
           paste("[u2$1*",1.750,"];", sep=""),
           paste("[u3$1*",-1.750,"];", sep=""),
           paste("[u4$1*",-1.750,"];", sep=""),
-          paste("i with s*.5; [i*3];[s*-.25];"),
-          paste("i*2; s*0.4; y1-y4*1;"),
+          paste("i with s*.3; [i*3];[s*-.25];"),
+          paste("i*1.0; s*0.2; y1-y4*.7;"),
           
           
           paste("%c#2%"),
@@ -156,14 +149,14 @@ for(class.size in c("med","med-eq","equal")) {
           paste("[u4$1*",1.750,"];", sep=""),
           paste("i with s*.5; [i*6];[s*1];"),
           paste("i*2; s*0.4; y1-y4*1;")
-          )
-        }
-        
-        
-        write(sep, file=inputfile, append=T)
-      
-        
-     
+        )
+      }
       
       
-  }}}
+      write(sep, file=inputfile, append=T)
+      
+      
+      
+      
+      
+    }}}

@@ -5,13 +5,13 @@
 #variances/covariances/residual are held equal across classes 
 #WILL NEED TO ADD ADDITIONAL LINES IF CHANGING THIS ^ 
 
-#Simulated Data stored on personal computer, however input files are stored in Duke Box
+#all files on external drive 
 
 #Christina Kamis
 #9/10/2020
 ####################################
 
-numsim=5
+numsim=1000
 for(samp.size in c("s","m","l")) {
   for(class.size in c("med","med-eq","equal")) {
     for(class.sep in c("low","medium","high")){
@@ -22,12 +22,12 @@ for(samp.size in c("s","m","l")) {
                                  class.size,
                                  class.sep,
                                  sep="-"),n,sep="")     
-        fileA=paste("'~/Box/Dissertation/Simulation Study/Input Files/")
+        fileA=paste("'/Volumes/Extreme SSD/Simulation Study/Input Files/")
         fileB=paste("MultiStep_Step1/multistep_step1",data.cond,paste(".txt"),
                     paste("'"),paste(";"), sep="")
         
         
-        inputfile=paste("~/Box/Dissertation/Simulation Study/Input Files/BCH_Step3/","inp-",data.cond,paste(".inp"), sep="")
+        inputfile=paste("/Volumes/Extreme SSD/Simulation Study/Input Files/BCH_Step3/","inp-",data.cond,paste(".inp"), sep="")
         
         
         input=file(inputfile) 
@@ -47,7 +47,6 @@ for(samp.size in c("s","m","l")) {
           
           paste("ANALYSIS:"),
           paste("TYPE = MIXTURE;"),
-          paste("STARTS = 100 20;"),
           paste("MODEL:"),
           paste("%OVERALL%"),
           paste("i s | y1@0 y2@1 y3@2 y4@3;"),

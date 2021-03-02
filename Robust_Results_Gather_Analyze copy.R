@@ -8,6 +8,10 @@
 require(MplusAutomation)
 #dplyr will be used to create new variable in function CompareBicResults
 require(dplyr)
+#for data tables
+require(data.table)
+require(kableExtra)
+library(formattable)
 ###############
 #function source() runs R script that creates input files based off of conditions of data 
 #function runModels() runs through all input files in a subdirectory one by one. 
@@ -23,13 +27,13 @@ require(dplyr)
 
 #One Step
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/Robustness/OneStep_LCNumTest.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/Robustness/OneStep/", 
-          recursive=T, logFile=NULL)
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/Robustness/OneStep/", 
+          recursive=T, logFile=NULL, replaceOutfile = "never")
 
 #MultiStep (Step 1) #first step for all multiple step methods (ML, BCH, classify-analyze, two-step)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/Robustness/MultiStep_LCNumTest.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/Robustness/MultiStep_Step1/", 
-          recursive=T, logFile=NULL)
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/Robustness/MultiStep_Step1/", 
+          recursive=T, logFile=NULL,replaceOutfile = "never")
 
 ####################################################################################
 #Gathering results 
@@ -44,15 +48,15 @@ runModels("~/Box/Dissertation/Simulation Study/Input Files/Robustness/MultiStep_
 
 GatherBIC<-function(method, data.cond,numsim, numclass){
   if(numclass==1){
-  Output=paste("~/Box/Dissertation/Simulation Study/Input Files/Robustness/",method,"/inp-oneC-",data.cond,numsim,paste(".out"), sep="")
+  Output=paste("/Volumes/Extreme SSD/Simulation Study/Input Files/Robustness/",method,"/inp-oneC-",data.cond,numsim,paste(".out"), sep="")
   }
   
   if(numclass==2){
-    Output=paste("~/Box/Dissertation/Simulation Study/Input Files/",method,"/inp-",data.cond,numsim,paste(".out"), sep="")
+    Output=paste("/Volumes/Extreme SSD/Simulation Study/Input Files/",method,"/inp-",data.cond,numsim,paste(".out"), sep="")
   }
   
   if(numclass==3){
-    Output=paste("~/Box/Dissertation/Simulation Study/Input Files/Robustness/",method,"/inp-threeC-",data.cond,numsim,paste(".out"), sep="")
+    Output=paste("/Volumes/Extreme SSD/Simulation Study/Input Files/Robustness/",method,"/inp-threeC-",data.cond,numsim,paste(".out"), sep="")
   }
   
   #This is reading in the results
@@ -107,16 +111,38 @@ GatherProp<-function(method,samp.size,class.size,class.sep){
   print(prop.2class.chosen)
 }
 
+
+#Function DeleteInpFile
+#this function deletes input files after they have been run and the results have been gathered
+#basically frees up storage on external drive
+DeleteInpFileRob<-function(method,numclass){
+  for(samp.size in c("s","m","l")) {
+    for(class.size in c("med","med-eq","equal")) {
+      for(class.sep in c("low","medium","high")){
+
+        for(n in 1:numsim){
+          data.cond <- paste("sim-data",
+                             samp.size,
+                             class.size,
+                             class.sep,
+                             sep="-")
+
+          InputFile<-paste("/Volumes/Extreme SSD/Simulation Study/Input Files/Robustness/",method,"/inp-",numclass,data.cond,n,paste(".inp"), sep="")
+          file.remove(InputFile)
+        }}}}
+}
+
+
 ####################################################################################
 #first setting numsim to the number of simulation is specified. 
-numsim=5
+numsim=1000
 ####################################################################################
 ###
 ####Getting BIC from each run into a single table by method and data condition 
 ###
 
 for(method in c("OneStep","MultiStep_Step1")){
-  for(samp.size in c("s","m","l")) {
+for(samp.size in c("s","m","l")) {
     for(class.size in c("med","med-eq","equal")) {
       for(class.sep in c("low","medium","high")){
       
@@ -127,20 +153,30 @@ for(method in c("OneStep","MultiStep_Step1")){
                              class.size,
                               class.sep,
                               sep="-")  
+          
+          
       
-          BICsum[n,1]=GatherBIC(method,data.cond,n,1)
+         BICsum[n,1]=GatherBIC(method,data.cond,n,1)
           BICsum[n,2]=GatherBIC(method,data.cond,n,2)
-          BICsum[n,3]=GatherBIC(method,data.cond,n,3)
+         BICsum[n,3]=GatherBIC(method,data.cond,n,3)
         
-        
+
         if(n==numsim){
            
           
           OutputBICResults(BICsum,method)
         }
         
-      }}}}}
+        }}}
+    }
+}
 
+####################################################################################
+#deleting input files to free up space on external drive 
+DeleteInpFileRob("OneStep","threeC-")
+DeleteInpFileRob("OneStep","oneC-")
+DeleteInpFileRob("MultiStep_Step1","threeC-")
+DeleteInpFileRob("MultiStep_Step1","oneC-")
 
 ####################################################################################
 ###
@@ -157,6 +193,12 @@ PropTwoClass[,4]<-rep(c("low","medium","high"),18)
 for(i in 1:nrow(PropTwoClass)){
 PropTwoClass[i,5]=GatherProp(PropTwoClass[i,1], PropTwoClass[i,2], PropTwoClass[i,3], PropTwoClass[i,4])
 }
+
+####################################################################################
+#outfiling results using 
+write.csv(PropTwoClass, "/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Robustness/PropBIC.csv")
+
+
 
 ####################################################################################
 

@@ -10,15 +10,18 @@ require(MplusAutomation)
 #function runModels() runs through all input files in a subdirectory one by one. 
 #Specifying no log file to be created 
 
+#all files stored via sandisk
+#compiled results stored on mac
+
 ####################################################################################
 ###
 ####Creating simulated Data 
 ###
 
-#first going to run R code to create mplus 
+#first going to run R code to create mplus input files 
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Mplus_sim_files_generate.R")
 #then running mplus files to create the simualted data sets 
-runModels("~/Box/Dissertation/Simulation Study/Simulated Data/", 
+runModels("/Volumes/Extreme SSD/Simulation Study/Simulated Data/", 
           recursive=T, logFile=NULL)
 
 ####################################
@@ -31,34 +34,35 @@ runModels("~/Box/Dissertation/Simulation Study/Simulated Data/",
 
 #One Step
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/OneStep_lin.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/OneStep/", 
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/OneStep/", 
           recursive=T, logFile=NULL)
 
 #need to run multistep step1 before any other files below 
 #MultiStep (Step 1) #first step for all multiple step methods (ML, BCH, classify-analyze, two-step)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/MultiStep1_lin.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/MultiStep_Step1/", 
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/MultiStep_Step1/", 
           recursive=T, logFile=NULL)
 
 #Three-step/classify analyze (Step 3)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/ThreeStep3_lin.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/ThreeStep_Step3/", 
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/ThreeStep_Step3/", 
           recursive=T, logFile=NULL)
 
 #ML manual (Step 3)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/MLStep3_lin.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/ML_Step3/", 
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/ML_Step3/", 
           recursive=T, logFile=NULL)
 
 #BCH manual (Step 3)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/BCHStep3_lin.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/BCH_Step3/", 
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/BCH_Step3/", 
           recursive=T, logFile=NULL)
 
 #Two Step (Step 2)
 source("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Input File Generate R/TwoStep2_lin.R")
-runModels("~/Box/Dissertation/Simulation Study/Input Files/TwoStep_Step2/", 
-          recursive=T, logFile=NULL)
+runModels("/Volumes/Extreme SSD/Simulation Study/Input Files/TwoStep_Step2/", 
+          recursive=T, logFile=NULL, replaceOutfile="never")
+
 
 ####################################################################################
 #Gathering results 
@@ -67,18 +71,36 @@ runModels("~/Box/Dissertation/Simulation Study/Input Files/TwoStep_Step2/",
 ####Creating Functions 
 ###
 
+
+
 ##Function Gather Parm 
 #creating a quick function that gathers the parameters from each run and exports
 #data frame "Parameters" to global environment
 
 GatherParam<-function(method, data.cond,n){
-  Output=paste("~/Box/Dissertation/Simulation Study/Input Files/",method,"/inp-",data.cond,n,paste(".out"), sep="")
+  Output=paste("/Volumes/Extreme SSD/Simulation Study/Input Files/",method,"/inp-",data.cond,n,paste(".out"), sep="")
   
   #This is reading in the results
   Results=readModels(Output)
   #Pulling out the parameters (unstandardized)
   Parameters=Results$parameters$unstandardized
+  BIC=Results$summaries$BIC
+  
+  if(!is.null(Parameters) & !is.null(BIC)){
   assign("Parameters", Parameters, envir=globalenv())
+  }
+  else if (is.null(Parameters) & method=="ThreeStep_Step3" ){
+    Parameters=matrix(NA,23,6)
+    assign("Parameters", Parameters, envir=globalenv())
+  }
+  else if ( is.null(Parameters) & method=="ML_Step3"){
+    Parameters=matrix(NA,45,7)
+    assign("Parameters", Parameters, envir=globalenv())
+  }
+ else if ( is.null(BIC) & method=="BCH_Step3"){
+  Parameters=matrix(NA,45,7)
+  assign("Parameters", Parameters, envir=globalenv())
+}
 }
 
 
@@ -87,22 +109,10 @@ GatherParam<-function(method, data.cond,n){
 #function that gathers creates data set from results, labels the columns, and
 #exports the results as a txt file
 
-OutputResults<-function(means,method, type){
+OutputResults<-function(means,method){
   Distalmeans=as.data.frame(means)
   #assigning variable names to each column
 
-  
-  #if there are class switches
-  if(type=="switch"){
-    names(Distalmeans)=c("C1Intercept","C1Slope","C1IntVar","C1SlopeVar","C1ResVar","C1ISCovar",
-                         "C2Intercept","C2Slope","C2IntVar","C2SlopeVar","C2ResVar","C2ISCovar", "Def.")
-  }
-  
-  #for the naive three step method 
-  if(type=="three"){
-    names(Distalmeans)=c("C1Intercept","C1Slope","IntVar","SlopeVar","ResVar","ISCovar",
-                         "C2Intercept","C2Slope")
-  }
   
   #outfiling new table once full 
   Filename=paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/",method,"/",
@@ -110,13 +120,37 @@ OutputResults<-function(means,method, type){
   write.table(Distalmeans, Filename)
 }
 
+##Function DeleteInpFile
+#this function deletes input files after they have been run and the results have been gathered
+#basically frees up storage on external drive
+DeleteInpFile<-function(method){
+  for(samp.size in c("s","m","l")) {
+    for(class.size in c("med","med-eq","equal")) {
+      for(class.sep in c("low","medium","high")){
+
+        for(n in 1:numsim){
+          data.cond <- paste("sim-data",
+                             samp.size,
+                             class.size,
+                             class.sep,
+                             sep="-")
+
+          InputFile<-paste("/Volumes/Extreme SSD/Simulation Study/Input Files/",method,"/inp-",data.cond,n,paste(".inp"), sep="")
+          file.remove(InputFile)
+        }}}}
+}
+
+
+
 ####################################################################################
 #first setting numsim to the number of simulation is specified. 
-numsim=5
+numsim=1000
 ####################################################################################
 ###
 ####Getting Parameters from each run into a single table by method and data condition 
 ###
+
+
 
 
 ##################################
@@ -160,10 +194,14 @@ if(as.numeric(Parameters[16,3])<0){
 
 
 if(n==numsim){
-OutputResults(Distalmeans,"OneStep",type="switch")
+OutputResults(Distalmeans,"OneStep")
 }
 
     }}}}  
+
+
+#deleting input files to free up space 
+DeleteInpFile("OneStep")
 
 
 ##################################
@@ -200,18 +238,48 @@ Distalmeans[n,10]=Parameters[23,3] # Slope Var
 Distalmeans[n,11]=Parameters[18,3] # Residual Var
 Distalmeans[n,12]=Parameters[11,3] # Intercept Slope Covar
 
+
+
 if(n==numsim){
-  OutputResults(Distalmeans,"Three Step",type="three")
+  OutputResults(Distalmeans,"Three Step")
 }
 
       }}}}  
 
+#now quickly just recording which position the classes are in 
+for(samp.size in c("s","m","l")) {
+  for(class.size in c("med","med-eq","equal")) {
+    for(class.sep in c("low","medium","high")){
+      
+      data.cond <- paste("sim-data",
+                         samp.size,
+                         class.size,
+                         class.sep,
+                         sep="-")
+      
+      Distalmeans=read.table(paste("/Users/christinakamis/Documents/DukeSociology/Dissertation/SimulationStudy/LCA_Linear_growth/Results/Three Step/",
+                     data.cond,".txt", sep=""))
+      
+
+     Distalmeans<-Distalmeans%>%
+       mutate(V13=ifelse(V1<V7, "1,2","2,1"))
+     OutputResults(Distalmeans,"Three Step")
+     
+    }}}
+
+#deleting input files to free up space 
+DeleteInpFile("ThreeStep_Step3")
 
 ##################################
 #ML
 for(samp.size in c("s","m","l")) {
   for(class.size in c("med","med-eq","equal")) {
     for(class.sep in c("low","medium","high")){
+      
+      # if i need to specifically run s-med-medium for ML
+     # samp.size="s"
+    #  class.size="med"
+    #  class.sep="medium"
       
       Distalmeans=matrix(NA,(numsim),13)   
       for(n in 1:numsim){
@@ -242,22 +310,26 @@ for(samp.size in c("s","m","l")) {
   
   #There is some evidence that there are switching classes, this is going
   #to denote if the first class shown has a negative of positive slope 
-  if(as.numeric(Parameters[11,3])<0){
+  if(!is.na(Parameters[11,3])){
+  if((Parameters[11,3])<0){
     Distalmeans[n,13]="1,2"
   }
   
-  if(as.numeric(Parameters[11,3])>0){
+  if((Parameters[11,3])>0){
     Distalmeans[n,13]="2,1"
+  }
   }
   
 
   if(n==numsim){
-  OutputResults(Distalmeans,"ML",type="switch")
+  OutputResults(Distalmeans,"ML")
   }
   
-      }}}}  
+      }
+      }}}  
 
-
+#deleting input files to free up space 
+DeleteInpFile("ML_Step3")
 
 ##################################
 #BCH
@@ -295,6 +367,7 @@ for(samp.size in c("s","m","l")) {
         
         #There is some evidence that there are switching classes, this is going
         #to denote if the first class shown has a negative of positive slope 
+        if(!is.na(Parameters[11,3])){
         if(as.numeric(Parameters[11,3])<0){
           Distalmeans[n,13]="1,2"
         }
@@ -303,14 +376,15 @@ for(samp.size in c("s","m","l")) {
           Distalmeans[n,13]="2,1"
         }
         
-        
+        }
         if(n==numsim){
-          OutputResults(Distalmeans,"BCH",type="switch")
+          OutputResults(Distalmeans,"BCH")
         }
         
       }}}}  
 
-
+#deleting input files to free up space 
+DeleteInpFile("BCH_Step3")
 ##################################
 #Two Step (note, currently doing nothing about the SE correction; just gathering the betas)
 
@@ -357,7 +431,7 @@ for(samp.size in c("s","m","l")) {
         
         
         if(n==numsim){
-          OutputResults(Distalmeans,"Two Step",type="switch")
+          OutputResults(Distalmeans,"Two Step")
         }
         
       }}}}  
